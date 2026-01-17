@@ -24,9 +24,15 @@ pgClient.on("connect", (client) => {
 });
 
 const redis = require("redis");
+const redisHost = keys.redisHost || "127.0.0.1";
+const redisPort = Number(keys.redisPort) || 6379;
+
 const redisClient = redis.createClient({
-  url: `redis://${keys.redisHost}:${keys.redisPort}`,
-  retry_strategy: () => 1000,
+  socket: {
+    host: redisHost,
+    port: redisPort,
+    reconnectStrategy: () => 1000,
+  },
 });
 const redisPublisher = redisClient.duplicate();
 
@@ -34,6 +40,13 @@ const redisPublisher = redisClient.duplicate();
   await redisClient.connect();
   await redisPublisher.connect();
 })();
+
+redisClient.on("error", (err) => {
+  console.error("Redis client error:", err);
+});
+redisPublisher.on("error", (err) => {
+  console.error("Redis publisher error:", err);
+});
 
 
 app.get("/", (req, res) => {
