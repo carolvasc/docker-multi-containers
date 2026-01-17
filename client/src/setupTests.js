@@ -5,6 +5,14 @@
 import '@testing-library/jest-dom';
 
 jest.mock("axios", () => ({
-  get: jest.fn(() => Promise.resolve({ data: {} })),
+  get: jest.fn((url) => {
+    if (typeof url === "string" && url.includes("/values/all")) {
+      return Promise.resolve({ data: [] });
+    }
+    if (typeof url === "string" && url.includes("/values/current")) {
+      return Promise.resolve({ data: {} });
+    }
+    return Promise.resolve({ data: {} });
+  }),
   post: jest.fn(() => Promise.resolve({ data: {} })),
 }));
