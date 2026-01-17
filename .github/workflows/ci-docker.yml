@@ -11,20 +11,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build client (builder stage)
-        run: docker build --target builder -t ci-client:test ./client
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build client (builder stage) with cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./client
+          target: builder
+          load: true
+          tags: ci-client:test
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
 
       - name: Run client tests
         run: docker run -e CI=true ci-client:test npm test -- --watchAll=false
 
-      - name: Build server
-        run: docker build -t ci-server:prod ./server
+      - name: Build server with cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          load: false
+          push: false
+          tags: ci-server:prod
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,mode=max,scope=server
 
-      - name: Build worker
-        run: docker build -t ci-worker:prod ./worker
+      - name: Build worker with cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./worker
+          load: false
+          push: false
+          tags: ci-worker:prod
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,mode=max,scope=worker
 
-      - name: Build nginx
-        run: docker build -t ci-nginx:prod ./nginx
+      - name: Build nginx with cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./nginx
+          load: false
+          push: false
+          tags: ci-nginx:prod
+          cache-from: type=gha,scope=nginx
+          cache-to: type=gha,mode=max,scope=nginx
 
   publish:
     needs: ci
@@ -33,36 +64,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_ID }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push client
+      - name: Build and push client (uses cache)
         uses: docker/build-push-action@v6
         with:
           context: ./client
           push: true
           tags: ${{ secrets.DOCKER_ID }}/multi-client:latest
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
 
-      - name: Build and push server
+      - name: Build and push server (uses cache)
         uses: docker/build-push-action@v6
         with:
           context: ./server
           push: true
           tags: ${{ secrets.DOCKER_ID }}/multi-server:latest
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
 
-      - name: Build and push worker
+      - name: Build and push worker (uses cache)
         uses: docker/build-push-action@v6
         with:
           context: ./worker
           push: true
           tags: ${{ secrets.DOCKER_ID }}/multi-worker:latest
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
 
-      - name: Build and push nginx
+      - name: Build and push nginx (uses cache)
         uses: docker/build-push-action@v6
         with:
           context: ./nginx
           push: true
           tags: ${{ secrets.DOCKER_ID }}/multi-nginx:latest
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
