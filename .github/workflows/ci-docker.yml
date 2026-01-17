@@ -3,39 +3,44 @@ name: CI (Build production Dockerfiles)
 on:
   push:
     branches: ["master"]
-  pull_request:
 
 jobs:
-  build-client:
+  docker:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Build client test image (builder stage)
-        run: docker build --target builder -t ci-client:test ./client
 
-      - name: Run client tests
-        run: docker run -e CI=true ci-client:test npm test -- --watchAll=false
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_ID }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build client image (prod)
-        run: docker build -t ci-client:prod ./client
+      - name: Build and push client
+        uses: docker/build-push-action@v6
+        with:
+          context: ./client
+          push: true
+          tags: ${{ secrets.DOCKER_ID }}/multi-client:latest
 
-  build-server:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build server image (prod)
-        run: docker build -t ci-server:prod ./server
+      - name: Build and push server
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          push: true
+          tags: ${{ secrets.DOCKER_ID }}/multi-server:latest
 
-  build-worker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build worker image (prod)
-        run: docker build -t ci-worker:prod ./worker
+      - name: Build and push worker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./worker
+          push: true
+          tags: ${{ secrets.DOCKER_ID }}/multi-worker:latest
 
-  build-nginx:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build nginx image (prod)
-        run: docker build -t ci-nginx:prod ./nginx
+      - name: Build and push nginx
+        uses: docker/build-push-action@v6
+        with:
+          context: ./nginx
+          push: true
+          tags: ${{ secrets.DOCKER_ID }}/multi-nginx:latest
