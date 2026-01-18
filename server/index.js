@@ -27,13 +27,23 @@ const redis = require("redis");
 const redisHost = keys.redisHost || "127.0.0.1";
 const redisPort = Number(keys.redisPort) || 6379;
 
-const redisClient = redis.createClient({
+const redisConfig = {
   socket: {
-    host: redisHost,
-    port: redisPort,
     reconnectStrategy: () => 1000,
   },
-});
+};
+
+if (keys.redisUrl) {
+  redisConfig.url = keys.redisUrl;
+} else {
+  redisConfig.socket.host = redisHost;
+  redisConfig.socket.port = redisPort;
+  if (keys.redisPassword) {
+    redisConfig.password = keys.redisPassword;
+  }
+}
+
+const redisClient = redis.createClient(redisConfig);
 const redisPublisher = redisClient.duplicate();
 
 (async () => {
