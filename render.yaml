@@ -6,17 +6,6 @@ services:
     dockerContext: ./nginx
     plan: free
     autoDeploy: false
-    envVars:
-      - key: API_URL
-        fromService:
-          name: api
-          type: web
-          property: url
-      - key: CLIENT_URL
-        fromService:
-          name: client
-          type: web
-          property: url
   - type: web
     name: client
     env: docker
