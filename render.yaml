@@ -42,23 +42,23 @@ services:
           property: port
       - key: PGHOST
         fromDatabase:
-          name: postgres
+          name: app-postgres
           property: host
       - key: PGUSER
         fromDatabase:
-          name: postgres
+          name: app-postgres
           property: user
       - key: PGPASSWORD
         fromDatabase:
-          name: postgres
+          name: app-postgres
           property: password
       - key: PGDATABASE
         fromDatabase:
-          name: postgres
+          name: app-postgres
           property: database
       - key: PGPORT
         fromDatabase:
-          name: postgres
+          name: app-postgres
           property: port
   - type: worker
     name: worker
