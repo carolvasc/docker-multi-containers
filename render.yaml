@@ -8,13 +8,25 @@ services:
     autoDeploy: true
     envVars:
       - key: API_HOST
-        value: api
+        fromService:
+          name: api
+          type: web
+          property: host
       - key: API_PORT
-        value: "5000"
+        fromService:
+          name: api
+          type: web
+          property: port
       - key: CLIENT_HOST
-        value: client
+        fromService:
+          name: client
+          type: web
+          property: host
       - key: CLIENT_PORT
-        value: "3000"
+        fromService:
+          name: client
+          type: web
+          property: port
   - type: web
     name: client
     env: docker
