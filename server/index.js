@@ -78,6 +78,8 @@ app.post("/values", async (req, res) => {
   res.send({ working: true });
 });
 
-app.listen(5000, (err) => {
-  console.log("Listening");
+const port = process.env.PORT || 5000;
+
+app.listen(port, (err) => {
+  console.log(`Listening on port ${port}`);
 });
