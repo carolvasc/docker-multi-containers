@@ -6,6 +6,11 @@ services:
     dockerContext: ./nginx
     plan: free
     autoDeploy: false
+    envVars:
+      - key: CLIENT_URL
+        value: https://client-vxpx.onrender.com
+      - key: API_URL
+        value: https://api-7x97.onrender.com
   - type: web
     name: client
     env: docker
@@ -50,24 +55,6 @@ services:
       - key: PGPORT
         fromDatabase:
           name: app-postgres
-          property: port
-  - type: worker
-    name: worker
-    env: docker
-    dockerfilePath: ./worker/Dockerfile
-    dockerContext: ./worker
-    plan: free
-    autoDeploy: false
-    envVars:
-      - key: REDIS_HOST
-        fromService:
-          name: redis
-          type: redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          name: redis
-          type: redis
           property: port
   - type: redis
     name: redis
