@@ -1,0 +1,90 @@
+services:
+  - type: web
+    name: nginx
+    env: docker
+    dockerfilePath: ./nginx/Dockerfile
+    dockerContext: ./nginx
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: API_HOST
+        value: api
+      - key: API_PORT
+        value: "5000"
+      - key: CLIENT_HOST
+        value: client
+      - key: CLIENT_PORT
+        value: "3000"
+  - type: web
+    name: client
+    env: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    plan: free
+    autoDeploy: true
+  - type: web
+    name: api
+    env: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          name: redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: redis
+          type: redis
+          property: port
+      - key: PGHOST
+        fromDatabase:
+          name: postgres
+          property: host
+      - key: PGUSER
+        fromDatabase:
+          name: postgres
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: postgres
+          property: password
+      - key: PGDATABASE
+        fromDatabase:
+          name: postgres
+          property: database
+      - key: PGPORT
+        fromDatabase:
+          name: postgres
+          property: port
+  - type: worker
+    name: worker
+    env: docker
+    dockerfilePath: ./worker/Dockerfile
+    dockerContext: ./worker
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          name: redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: redis
+          type: redis
+          property: port
+  - type: redis
+    name: redis
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: app-postgres
+    databaseName: fib_calc
+    user: fib_user
+    plan: free
