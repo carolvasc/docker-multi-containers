@@ -63,16 +63,6 @@ jobs:
           cache-from: type=gha,scope=worker-dev
           cache-to: type=gha,mode=max,scope=worker-dev
 
-      - name: Build and push nginx
-        uses: docker/build-push-action@v6
-        with:
-          context: ./nginx
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_ID }}/multi-nginx:${{ github.sha }}
-          cache-from: type=gha,scope=nginx-dev
-          cache-to: type=gha,mode=max,scope=nginx-dev
-
       - id: auth
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
