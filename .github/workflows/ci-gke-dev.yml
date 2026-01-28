@@ -93,11 +93,9 @@ jobs:
           kubectl set image deployment/client-deployment client=${{ secrets.DOCKER_ID }}/multi-client:${{ github.sha }}
           kubectl set image deployment/server-deployment server=${{ secrets.DOCKER_ID }}/multi-server:${{ github.sha }}
           kubectl set image deployment/worker-deployment worker=${{ secrets.DOCKER_ID }}/multi-worker:${{ github.sha }}
-          kubectl set image deployment/nginx-deployment nginx=${{ secrets.DOCKER_ID }}/multi-nginx:${{ github.sha }}
 
       - name: Wait for rollout
         run: |
           kubectl rollout status deployment/client-deployment
           kubectl rollout status deployment/server-deployment
           kubectl rollout status deployment/worker-deployment
-          kubectl rollout status deployment/nginx-deployment
